@@ -17,10 +17,15 @@ type ParsedException = {
 
 @Catch()
 export class GlobalHttpExceptionFilter implements ExceptionFilter {
+  private readonly tracingEnabled: boolean;
+
   constructor(
     @Optional()
     private cls?: ClsService,
-  ) {}
+  ) {
+    // TODO: to config
+    this.tracingEnabled = process.env.NODE_ENV === 'development';
+  }
 
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
@@ -30,6 +35,10 @@ export class GlobalHttpExceptionFilter implements ExceptionFilter {
 
     if (parsed.body.traceId === undefined && this.cls !== undefined) {
       parsed.body.setTraceId(this.cls.getId());
+    }
+
+    if (!this.tracingEnabled) {
+      parsed.body.clearTrace();
     }
 
     // serialization stack in JS ecosystem is trash

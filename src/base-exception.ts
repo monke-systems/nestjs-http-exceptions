@@ -55,4 +55,8 @@ export class BaseException extends Error {
   setTrace(trace: string) {
     this.trace = trace;
   }
+
+  clearTrace() {
+    this.trace = undefined;
+  }
 }
