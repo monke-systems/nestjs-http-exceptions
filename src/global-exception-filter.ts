@@ -3,6 +3,7 @@ import {
   BadRequestException,
   Catch,
   HttpException,
+  Logger,
   Optional,
 } from '@nestjs/common';
 import type { FastifyReply } from 'fastify';
@@ -17,6 +18,7 @@ type ParsedException = {
 
 @Catch()
 export class GlobalHttpExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(GlobalHttpExceptionFilter.name);
   private readonly tracingEnabled: boolean;
 
   constructor(
@@ -103,11 +105,15 @@ export class GlobalHttpExceptionFilter implements ExceptionFilter {
         base.setTrace(exception.stack);
       }
 
+      this.logger.error(exception);
+
       return {
         httpStatus: 500,
         body: base,
       };
     }
+
+    this.logger.error(exception);
 
     return {
       httpStatus: 500,
